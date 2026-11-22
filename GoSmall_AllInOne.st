@@ -1,19 +1,3 @@
-"======================================================================
-  PROJEKT GOSMALL - PLANER PODROZY (SMALLTALK)
-  Scenariusz: Ares Base Logistics (Ekspedycja Mars -> Ziemia)
-  
-  Zrealizowane moduly:
-  - Moduly podstawowe: Modul 1, Modul 2, Modul 3
-  - Moduly dodatkowe:
-      * Modul G: Warunki podrozy i anomalie (czasDlaOsoby: / czasDla:)
-      * Modul F: Pasazerowie i taryfy biletowe (kosztDlaOsoby: / kosztDla:)
-      * Modul I: Poprawnosc i spojnosc trasy (komunikat sprawdz)
-  (Uwaga: Modul A - Opoznienia - przeznaczony do implementacji przez kolege)
-======================================================================"
-
-"======================================================================
- MODUL G: Hierarchia klas Warunkow podrozy
-======================================================================"
 
 Object subclass: Warunki [
     | nazwa |
@@ -32,7 +16,6 @@ Object subclass: Warunki [
     nazwa [ ^nazwa ]
     nazwa: n [ nazwa := n. ^self ]
 
-    "Metody fabryczne tworzace konkretne stany pogody"
     Warunki class >> optymalne [
         ^WarunkiOptymalne new
     ]
@@ -58,7 +41,6 @@ Object subclass: Warunki [
     ]
 ]
 
-"1. Warunki optymalne (stan bazowy)"
 Warunki subclass: WarunkiOptymalne [
     initialize [
         super initialize.
@@ -70,7 +52,6 @@ Warunki subclass: WarunkiOptymalne [
     ]
 ]
 
-"2. Burza pylowa na Marsie - troche spowalnia kazdy transport powierzchniowy"
 Warunki subclass: BurzaPylowa [
     initialize [
         super initialize.
@@ -83,7 +64,7 @@ Warunki subclass: BurzaPylowa [
     ]
 ]
 
-"3. Deszcz meteorytow w kosmosie - podwaja czas skafandra, +50% lazik, prom ma pancerz"
+"Deszcz meteorytow w kosmosie - podwaja czas skafandra, +50% lazik, prom ma pancerz"
 Warunki subclass: DeszczMeteorytow [
     initialize [
         super initialize.
@@ -95,7 +76,7 @@ Warunki subclass: DeszczMeteorytow [
     ]
 ]
 
-"4. Zorza polarna - spowalnia tylko prom kosmiczny, bo turysci chca ogladac widoki!"
+
 Warunki subclass: ZorzaPolarna [
     initialize [
         super initialize.
@@ -110,11 +91,6 @@ Warunki subclass: ZorzaPolarna [
         ^' (Karynka z rodzinką chce obejrzeć widoczki!)'
     ]
 ]
-
-
-"======================================================================
- MODUL F: Klasy Pasazerow i reguly taryfowe
-======================================================================"
 
 Object subclass: Pasazer [
     | imie |
@@ -149,7 +125,6 @@ Object subclass: Pasazer [
     ]
 ]
 
-"1. Turysta - taryfa normalna (100% ceny)"
 Pasazer subclass: Turysta [
     opisTaryfy [
         ^'Turysta (taryfa normalna)'
@@ -160,7 +135,7 @@ Pasazer subclass: Turysta [
     ]
 ]
 
-"2. Inzynier Bazy Ares - 100% znizki (podrozuje calkowicie za darmo)"
+"Inzynier Bazy Ares - 100% znizki (podrozuje calkowicie za darmo)"
 Pasazer subclass: InzynierBazyAres [
     opisTaryfy [
         ^'Inżynier Bazy Ares (ulga 100%)'
@@ -171,7 +146,7 @@ Pasazer subclass: InzynierBazyAres [
     ]
 ]
 
-"3. Gornik Kolonijny - 50% znizki"
+"Gornik Kolonijny - 50% znizki"
 Pasazer subclass: GornikKolonijny [
     opisTaryfy [
         ^'Górnik Kolonijny (ulga 50%)'
@@ -183,7 +158,7 @@ Pasazer subclass: GornikKolonijny [
     ]
 ]
 
-"4. Polityk - na Marsa za darmo (0 zl), ale powrot na Ziemie kosztuje 250% biletu!"
+"Polityk - na Marsa za darmo (0 zl), ale powrot na Ziemie kosztuje 250% biletu"
 Pasazer subclass: Polityk [
     | kierunek |
 
@@ -234,11 +209,6 @@ Pasazer subclass: Polityk [
     ]
 ]
 
-
-"======================================================================
- MODUL 1, 2, F, G: Klasa OdcinekPodrozy i jej klasy potomne
-======================================================================"
-
 Object subclass: OdcinekPodrozy [
     | poczatek koniec dystans czasBazowy |
 
@@ -265,7 +235,6 @@ Object subclass: OdcinekPodrozy [
         czasBazowy := 0.
     ]
 
-    "Gettery i Settery z obsluga blednych danych"
     poczatek [ ^poczatek ]
     poczatek: nazwa [ poczatek := nazwa. ^self ]
 
@@ -281,7 +250,6 @@ Object subclass: OdcinekPodrozy [
 
     ustawCzas: min [ czasBazowy := min. ^self ]
 
-    "Metody polimorficzne"
     czas [
         czasBazowy > 0 ifTrue: [ ^czasBazowy ].
         ^self obliczCzas
@@ -292,6 +260,10 @@ Object subclass: OdcinekPodrozy [
     ]
 
     koszt [
+        ^0
+    ]
+    
+    emisjaCO2[
         ^0
     ]
 
@@ -353,8 +325,6 @@ Object subclass: OdcinekPodrozy [
 ]
 
 
-"--- Klasy potomne pojazdow i srodkow transportu ---"
-
 "1. Skafander Ares: darmowy, ale najwolniejszy"
 OdcinekPodrozy subclass: SkafanderAres [
     opis [ ^'Skafander Ares' ]
@@ -365,6 +335,10 @@ OdcinekPodrozy subclass: SkafanderAres [
 
     koszt [
         ^0
+    ]
+    
+    emisjaCO2 [
+        ^(dystans * 35) rounded
     ]
 
     modyfikujCzasDlaDeszczuMeteorytow: czasWejsciowy [
@@ -384,6 +358,10 @@ OdcinekPodrozy subclass: LekkiLazik [
     koszt [
         ^(dystans * 1) rounded
     ]
+    
+    emisjaCO2 [
+        ^(dystans * 20) rounded
+    ]
 
     modyfikujCzasDlaDeszczuMeteorytow: czasWejsciowy [
         "Deszcz meteorytow wydluza czas lazikowi o 50%"
@@ -401,6 +379,10 @@ OdcinekPodrozy subclass: PromTransportowyAres [
 
     koszt [
         ^(350 + (dystans * 8)) rounded
+    ]
+    
+    emisjaCO2 [
+        ^(dystans * 300) rounded
     ]
 
     modyfikujCzasDlaDeszczuMeteorytow: czasWejsciowy [
@@ -425,9 +407,13 @@ OdcinekPodrozy subclass: KolejMagnetyczna [
     koszt [
         ^(25 + (dystans * 1.5)) rounded
     ]
+    
+    emisjaCO2 [
+        ^(dystans * 500) rounded
+    ]
 
     modyfikujCzasDlaDeszczuMeteorytow: czasWejsciowy [
-        "Kolej porusza sie w podziemnych tunelach - calkowicie bezpieczna"
+        "Kolej porusza sie w podziemnych tunelach"
         ^czasWejsciowy
     ]
 ]
@@ -443,22 +429,20 @@ OdcinekPodrozy subclass: LazikMarsjanski [
     koszt [
         ^(15 + (dystans * 2)) rounded
     ]
+    
+    emisjaCO2 [
+        ^(dystans * 700) rounded
+    ]
 
     modyfikujCzasDlaDeszczuMeteorytow: czasWejsciowy [
-        "Ciezki pancerz - spowolnienie o zaledwie 10%"
+        "Ciezki pancerz - spowolnienie o 10%"
         ^(czasWejsciowy * 1.10) rounded
     ]
 ]
 
-"Zachowanie bezposrednich aliasow wymaganych przez specyfikacje zadania"
 SkafanderAres subclass: Pieszo []
 LekkiLazik subclass: Rower []
 PromTransportowyAres subclass: Autobus []
-
-
-"======================================================================
- MODUL 2, 3, F, G, I: Klasa Trasa jako Agregator
-======================================================================"
 
 Object subclass: Trasa [
     | odcinki |
@@ -522,8 +506,29 @@ Object subclass: Trasa [
     koszt [
         ^odcinki inject: 0 into: [ :suma :odcinek | suma + odcinek koszt ]
     ]
+    emisjaCO2 [
+        ^odcinki inject: 0 into: [ :suma :odcinek | suma + odcinek emisjaCO2 ]
+    ]
+    
+    porownajEmisjeZ: innaTrasa [
+        | e1 e2 |
+        (innaTrasa isKindOf: Trasa) ifFalse: [
+            self error: 'Blad: Argument musi byc obiektem klasy Trasa'.
+        ].
+        e1 := self emisjaCO2.
+        e2 := innaTrasa emisjaCO2.
 
-    "Zaawansowane mechanizmy kolekcji (Wymog 7: collect:, select:, reject:, detect:ifNone:)"
+        (e1 < e2) ifTrue: [
+            ^'Pierwsza trasa jest bardziej ekologiczna (' , e1 printString , ' g vs ' , e2 printString , ' g CO2)'
+        ].
+        (e1 > e2) ifTrue: [
+            ^'Druga trasa jest bardziej ekologiczna (' , e1 printString , ' g vs ' , e2 printString , ' g CO2)'
+        ].
+
+        ^'Obie trasy maja identyczna emisje CO2: ' , e1 printString , ' g'
+    ]
+
+    "Zaawansowane mechanizmy kolekcji"
     listaDystansow [
         ^odcinki collect: [ :odcinek | odcinek dystans ]
     ]
@@ -540,7 +545,7 @@ Object subclass: Trasa [
         ^odcinki detect: [ :odcinek | odcinek poczatek = nazwaStacji ] ifNone: [ nil ]
     ]
 
-    "Dynamiczne rozpoznawanie typu obiektu (Wymog 6 ze specyfikacji)"
+    "Dynamiczne rozpoznawanie typu obiektu"
     rozpoznajTypObiektu: dowolnyObiekt [
         (dowolnyObiekt isKindOf: OdcinekPodrozy) ifTrue: [ 
             ^'Rozpoznano Odcinek Podróży: ' , dowolnyObiekt opis 
@@ -620,7 +625,6 @@ Object subclass: Trasa [
         ^wykryteBledy
     ]
 
-    "Wydruk trasy z odstepami miedzy etapami"
     drukuj [
         | numer |
         Transcript show: '============================================================'; cr.
@@ -644,11 +648,6 @@ Object subclass: Trasa [
         Transcript show: '============================================================'; cr.
     ]
 ]
-
-
-"======================================================================
- BLOK AUTOMATYCZNYCH TESTOW (ASERCJE POPRAWNOSCI)
-======================================================================="
 
 | a b c d lewa prawa dluzsza calosc sprawdz blad |
 sprawdz := [ :warunek :opis |
@@ -698,13 +697,7 @@ sprawdz value: ((lewa rozpoznajTypObiektu: pTurysta) = 'Rozpoznano Pasażera: Tu
     value: 'Dynamiczne rozpoznawanie typu Pasazer'.
 
 
-"======================================================================
- GLOWNA PREZENTACJA SCENARIUSZA: ARES BASE (MARS -> ZIEMIA)
- Wszystkie wymagane punkty: 
- Ziemia, Orbita, Stacja Kosmiczna, Mars, Kopalnia, Kwatery, Malownicza pustynia
-======================================================================="
-
-| e1 e2 e3 e4 e5 e6 trasaGlowna trasaBledna wOpt wBurza wDeszcz wZorza |
+| e1 e2 e3 e3Alt e4 e5 e6 trasaGlowna trasaAlternatywna trasaBledna wOpt wBurza wDeszcz wZorza |
 
 "Utworzenie etapow podrozy z Kopalni az na Ziemie"
 e1 := SkafanderAres 
@@ -721,6 +714,11 @@ e3 := KolejMagnetyczna
         z: 'Malownicza pustynia' 
         do: 'Mars' 
         dystans: 60.
+        
+e3Alt := LazikMarsjanski
+    z: 'Malownicza pustynia'
+    do: 'Mars'
+    dystans: 60.
 
 e4 := PromTransportowyAres 
         z: 'Mars' 
@@ -739,6 +737,7 @@ e6 := PromTransportowyAres
 
 "Polaczenie wszystkich etapow w jedna ciagla trase"
 trasaGlowna := e1 + e2 + e3 + e4 + e5 + e6.
+trasaAlternatywna := e1 + e2 + e3Alt + e4 + e5 + e6.
 
 Transcript cr.
 "A. WYDRUK TRASY GLOWNEJ"
@@ -790,6 +789,12 @@ Transcript show: ('   * ' , wDeszcz nazwa , ': OPÓŹNIENIE ' , opDeszcz printSt
 Transcript show: ('   * ' , wZorza nazwa , ': OPÓŹNIENIE ' , opZorza printString , ' min -> Czas podróży ' , cZorza printString , ' min' , wZorza komentarzWidokowy); cr.
 
 Transcript cr.
+Transcript show: '[ANALIZA ŚLADU WĘGLOWEGO MISJI - MODUŁ E: Ekologia]'; cr.
+Transcript show: ('   * Emisja Trasy 1 (z Koleją Magnetyczną): ' , trasaGlowna emisjaCO2 printString , ' g CO2'); cr.
+Transcript show: ('   * Emisja Trasy 2 (z Ciężkim Łazikiem):   ' , trasaAlternatywna emisjaCO2 printString , ' g CO2'); cr.
+Transcript show: ('   -> ' , (trasaGlowna porownajEmisjeZ: trasaAlternatywna)); cr.
+
+
 Transcript show: '============================================================'; cr.
 Transcript show: '             ZAKOŃCZENIE PREZENTACJI MISJI ARES             '; cr.
 Transcript show: '============================================================'; cr.
